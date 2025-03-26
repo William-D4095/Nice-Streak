@@ -14,6 +14,9 @@
       color: #333;
       position: relative;
     }
+    .hidden {
+      display: none !important;
+    }
     .tabs {
       position: absolute;
       top: 10px;
@@ -116,6 +119,33 @@
   </style>
 </head>
 <body>
+<div id="lockedContent">
+  <div class="music-icon" id="musicBtn">🎵</div>
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.pixabay.com/audio/2023/04/04/audio_8edb61d93a.mp3" type="audio/mpeg">
+  </audio>
+  <div class="tabs">
+    <button id="tabTimer" class="active">Timer</button>
+    <button id="tabGoals">Goals</button>
+  </div>
+  <div id="timerTab" class="tab-content active">
+    <h1>Nice Streak</h1>
+    <div class="timer" id="timerDisplay">00:00:00</div>
+    <div class="buttons" id="controls">
+      <button id="startBtn">Start</button>
+      <button id="resetBtn">Reset</button>
+      <button id="pauseBtn">Pause</button>
+    </div>
+  </div>
+  <div id="goalsTab" class="tab-content">
+    <h1>Goals</h1>
+    <div class="goals-container" id="goalsContainer"></div>
+  </div>
+</div>
+<div id="accessDeniedMessage" class="hidden">
+  <h1 style="text-align:center; margin-top:50vh;">this page isn't finished yet. check back again later (probably in 100 years)!</h1>
+</div>
+
 <script>
   const ownerPassword = "TripAL!sat?cheL";
   const friendPassword = "goodvibes";
@@ -124,35 +154,11 @@
   if (entered === ownerPassword) accessLevel = "owner";
   else if (entered === friendPassword) accessLevel = "friend";
   else {
-    document.body.innerHTML = "<h1 style='text-align:center; margin-top:50vh;'>this page isn't finished yet. check back again later (probably in 100 years)!</h1>";
+    document.getElementById('lockedContent').classList.add('hidden');
+    document.getElementById('accessDeniedMessage').classList.remove('hidden');
     throw new Error("Access denied");
   }
-</script>
 
-<div class="music-icon" id="musicBtn">🎵</div>
-<audio id="bgMusic" loop>
-  <source src="https://cdn.pixabay.com/audio/2023/04/04/audio_8edb61d93a.mp3" type="audio/mpeg">
-</audio>
-
-<div class="tabs">
-  <button id="tabTimer" class="active">Timer</button>
-  <button id="tabGoals">Goals</button>
-</div>
-<div id="timerTab" class="tab-content active">
-  <h1>Nice Streak</h1>
-  <div class="timer" id="timerDisplay">00:00:00</div>
-  <div class="buttons" id="controls">
-    <button id="startBtn">Start</button>
-    <button id="resetBtn">Reset</button>
-    <button id="pauseBtn">Pause</button>
-  </div>
-</div>
-<div id="goalsTab" class="tab-content">
-  <h1>Goals</h1>
-  <div class="goals-container" id="goalsContainer"></div>
-</div>
-
-<script>
   document.getElementById('musicBtn').addEventListener('click', () => {
     const music = document.getElementById('bgMusic');
     music.volume = 0.4;
