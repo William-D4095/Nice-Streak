@@ -51,7 +51,10 @@
     }
     .timer {
       font-size: 5rem;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+    }
+    .progress-info {
+      margin-bottom: 30px;
     }
     .buttons {
       display: flex;
@@ -122,7 +125,7 @@
 <div id="lockedContent">
   <div class="music-icon" id="musicBtn">🎵</div>
   <audio id="bgMusic" loop>
-    <source src="https://cdn.pixabay.com/audio/2023/04/04/audio_8edb61d93a.mp3" type="audio/mpeg">
+    <source src="https://files.catbox.moe/2ie7ld.mp3" type="audio/mpeg">
   </audio>
   <div class="tabs">
     <button id="tabTimer" class="active">Timer</button>
@@ -131,6 +134,10 @@
   <div id="timerTab" class="tab-content active">
     <h1>Nice Streak</h1>
     <div class="timer" id="timerDisplay">00:00:00</div>
+    <div class="progress-info">
+      <div id="goalProgressText"></div>
+      <div class="progress-bar"><div class="progress-fill" id="goalProgressBar"></div></div>
+    </div>
     <div class="buttons" id="controls">
       <button id="startBtn">Start</button>
       <button id="resetBtn">Reset</button>
@@ -145,7 +152,6 @@
 <div id="accessDeniedMessage" class="hidden">
   <h1 style="text-align:center; margin-top:50vh;">this page isn't finished yet. check back again later (probably in 100 years)!</h1>
 </div>
-
 <script>
   const ownerPassword = "TripAL!sat?cheL";
   const friendPassword = "goodvibes";
@@ -162,7 +168,7 @@
   document.getElementById('musicBtn').addEventListener('click', () => {
     const music = document.getElementById('bgMusic');
     music.volume = 0.4;
-    music.play();
+    music.play().catch(e => console.log("Autoplay blocked until user interacts."));
   });
 
   const tabTimer = document.getElementById('tabTimer');
@@ -217,6 +223,18 @@
     }
     document.getElementById('timerDisplay').textContent = formatTime(elapsed);
     updateGoals(elapsed);
+    updateMainGoalProgress(elapsed);
+  }
+
+  function updateMainGoalProgress(elapsed) {
+    const goalDays = [1, 2, 3, 4, 5, 6, 7, 30];
+    const goalText = document.getElementById('goalProgressText');
+    const bar = document.getElementById('goalProgressBar');
+    let currentGoal = goalDays.find(day => elapsed < day * 86400000);
+    if (!currentGoal) currentGoal = 30;
+    const percent = Math.min(100, (elapsed / (currentGoal * 86400000)) * 100);
+    bar.style.width = percent + "%";
+    goalText.textContent = `You're on your way! Next goal: ${currentGoal} day${currentGoal > 1 ? 's' : ''} without being unkind (${percent.toFixed(1)}% completed)`;
   }
 
   function startTimer() {
@@ -270,7 +288,7 @@
     const days = [1, 2, 3, 4, 5, 6, 7, 30];
     goalContainer.innerHTML = '';
     days.forEach(day => {
-      const percent = Math.min(100, Math.floor((elapsed / (day * 86400000)) * 100));
+      const percent = Math.min(100, (elapsed / (day * 86400000)) * 100);
       const div = document.createElement('div');
       div.className = 'goal-field';
       div.innerHTML = `
@@ -278,7 +296,7 @@
         <div class="progress-bar">
           <div class="progress-fill" style="width: ${percent}%"></div>
         </div>
-        <div>${percent}% completed</div>
+        <div>${percent.toFixed(1)}% completed</div>
       `;
       goalContainer.appendChild(div);
     });
