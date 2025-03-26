@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nice Streak</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      /* A nice streak/gradient background */
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      height: 100vh;
+      color: #333;
+      position: relative;
+    }
+    /* Tabs container */
+    .tabs {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+    .tabs button {
+      background: rgba(255, 255, 255, 0.7);
+      border: none;
+      padding: 8px 12px;
+      margin-right: 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .tabs button.active {
+      background: rgba(255, 255, 255, 1);
+      font-weight: bold;
+    }
+    /* Common styling for both tabs */
+    .tab-content {
+      display: none;
+      text-align: center;
+      padding-top: 80px; /* leave space for the tabs */
+    }
+    .tab-content.active {
+      display: block;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      color: #2c3e50; /* Compliments the pastel background */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .timer {
+      font-size: 5rem;
+      margin-bottom: 20px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    /* Goals styling */
+    .goals-container {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .goal-field {
+      margin-bottom: 15px;
+    }
+    .goal-field label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .goal-field input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button id="tabTimer" class="active">Timer</button>
+    <button id="tabGoals">Goals</button>
+  </div>
+
+  <!-- Timer Tab Content -->
+  <div id="timerTab" class="tab-content active">
+    <h1>Nice Streak</h1>
+    <div class="timer" id="timerDisplay">00:00:00</div>
+    <div class="buttons">
+      <button id="startBtn">Start</button>
+      <button id="resetBtn">Reset</button>
+      <button id="pauseBtn">Pause</button>
+    </div>
+  </div>
+
+  <!-- Goals Tab Content -->
+  <div id="goalsTab" class="tab-content">
+    <h1>Goals</h1>
+    <div class="goals-container">
+      <div class="goal-field">
+        <label for="goal1">Goal for 1 Day:</label>
+        <input type="text" id="goal1" placeholder="Enter your goal for 1 day" />
+      </div>
+      <div class="goal-field">
+        <label for="goal2">Goal for 2 Days:</label>
+        <input type="text" id="goal2" placeholder="Enter your goal for 2 days" />
+      </div>
+      <div class="goal-field">
+        <label for="goal3">Goal for 3 Days:</label>
+        <input type="text" id="goal3" placeholder="Enter your goal for 3 days" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    const tabTimer = document.getElementById('tabTimer');
+    const tabGoals = document.getElementById('tabGoals');
+    const timerTabContent = document.getElementById('timerTab');
+    const goalsTabContent = document.getElementById('goalsTab');
+
+    tabTimer.addEventListener('click', () => {
+      timerTabContent.classList.add('active');
+      goalsTabContent.classList.remove('active');
+      tabTimer.classList.add('active');
+      tabGoals.classList.remove('active');
+    });
+    tabGoals.addEventListener('click', () => {
+      goalsTabContent.classList.add('active');
+      timerTabContent.classList.remove('active');
+      tabGoals.classList.add('active');
+      tabTimer.classList.remove('active');
+    });
+
+    // Timer logic with persistent state
+    const TIMER_STATE_KEY = 'timerState';
+    const START_TIME_KEY = 'startTime';
+    const ACCUMULATED_KEY = 'accumulated';
+
+    // Possible states: 'running', 'paused', 'reset'
+    let timerState = localStorage.getItem(TIMER_STATE_KEY) || 'reset';
+    let startTime = parseInt(localStorage.getItem(START_TIME_KEY)) || 0;
+    let accumulated = parseInt(localStorage.getItem(ACCUMULATED_KEY)) || 0;
+    let timerInterval = null;
+
+    function updateLocalStorage() {
+      localStorage.setItem(TIMER_STATE_KEY, timerState);
+      localStorage.setItem(START_TIME_KEY, startTime.toString());
+      localStorage.setItem(ACCUMULATED_KEY, accumulated.toString());
+    }
+
+    // Updated function to include days
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const remainder = totalSeconds % 86400;
+      const hours = Math.floor(remainder / 3600);
+      const minutes = Math.floor((remainder % 3600) / 60);
+      const seconds = remainder % 60;
+      let display = "";
+      if (days > 0) {
+        display += days + "d ";
+      }
+      display += String(hours).padStart(2, '0') + ':'
+              + String(minutes).padStart(2, '0') + ':'
+              + String(seconds).padStart(2, '0');
+      return display;
+    }
+
+    function updateDisplay() {
+      const now = Date.now();
+      let elapsed = accumulated;
+      if (timerState === 'running') {
+        elapsed += now - startTime;
+      }
+      document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+    }
+
+    function startTimer() {
+      if (timerState === 'running') return;
+      startTime = Date.now();
+      timerState = 'running';
+      updateLocalStorage();
+      if (!timerInterval) {
+        timerInterval = setInterval(updateDisplay, 1000);
+      }
+    }
+
+    function pauseTimer() {
+      if (timerState !== 'running') return;
+      const now = Date.now();
+      accumulated += now - startTime;
+      timerState = 'paused';
+      updateLocalStorage();
+      clearInterval(timerInterval);
+      timerInterval = null;
+      updateDisplay();
+    }
+
+    function resetTimer() {
+      timerState = 'reset';
+      startTime = 0;
+      accumulated = 0;
+      updateLocalStorage();
+      clearInterval(timerInterval);
+      timerInterval = null;
+      updateDisplay();
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startTimer);
+    document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+    document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+    if (timerState === 'running') {
+      if (!timerInterval) {
+        timerInterval = setInterval(updateDisplay, 1000);
+      }
+    }
+    updateDisplay();
+
+    // Goals logic: save and load from localStorage
+    const goalIds = ['goal1', 'goal2', 'goal3'];
+    goalIds.forEach(id => {
+      const input = document.getElementById(id);
+      // Load saved value if any
+      const saved = localStorage.getItem(id);
+      if (saved !== null) {
+        input.value = saved;
+      }
+      // Save on input change
+      input.addEventListener('input', () => {
+        localStorage.setItem(id, input.value);
+      });
+    });
+  </script>
+</body>
+</html>
