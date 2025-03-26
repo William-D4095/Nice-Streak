@@ -14,14 +14,8 @@
       color: #333;
       position: relative;
     }
-    .hidden {
-      display: none !important;
-    }
-    .tabs {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-    }
+    .hidden { display: none !important; }
+    .tabs { position: absolute; top: 10px; left: 10px; }
     .tabs button {
       background: rgba(255, 255, 255, 0.7);
       border: none;
@@ -31,31 +25,17 @@
       border-radius: 5px;
       font-size: 1rem;
     }
-    .tabs button.active {
-      background: rgba(255, 255, 255, 1);
-      font-weight: bold;
-    }
-    .tab-content {
-      display: none;
-      text-align: center;
-      padding-top: 80px;
-    }
-    .tab-content.active {
-      display: block;
-    }
+    .tabs button.active { background: #fff; font-weight: bold; }
+    .tab-content { display: none; text-align: center; padding-top: 80px; }
+    .tab-content.active { display: block; }
     h1 {
       font-size: 3rem;
       margin-bottom: 10px;
       color: #2c3e50;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
-    .timer {
-      font-size: 5rem;
-      margin-bottom: 10px;
-    }
-    .progress-info {
-      margin-bottom: 30px;
-    }
+    .timer { font-size: 5rem; margin-bottom: 10px; }
+    .progress-info { margin-bottom: 30px; }
     .buttons {
       display: flex;
       gap: 10px;
@@ -68,10 +48,6 @@
       cursor: pointer;
       border: none;
       border-radius: 5px;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: rgba(0, 0, 0, 0.1);
     }
     .goals-container {
       max-width: 500px;
@@ -80,13 +56,8 @@
       padding: 20px;
       border-radius: 15px;
     }
-    .goal-field {
-      margin-bottom: 20px;
-    }
-    .goal-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+    .goal-field { margin-bottom: 20px; }
+    .goal-title { font-weight: bold; margin-bottom: 5px; }
     .progress-bar {
       width: 100%;
       height: 20px;
@@ -125,12 +96,14 @@
 <div id="lockedContent">
   <div class="music-icon" id="musicBtn">🎵</div>
   <audio id="bgMusic" loop>
-    <source src="https://files.catbox.moe/2ie7ld.mp3" type="audio/mpeg">
+    <source src="./When%20the%20World%20is%20Cloaked%20in%20Shadows.mp3" type="audio/mpeg">
   </audio>
+
   <div class="tabs">
     <button id="tabTimer" class="active">Timer</button>
     <button id="tabGoals">Goals</button>
   </div>
+
   <div id="timerTab" class="tab-content active">
     <h1>Nice Streak</h1>
     <div class="timer" id="timerDisplay">00:00:00</div>
@@ -144,14 +117,19 @@
       <button id="pauseBtn">Pause</button>
     </div>
   </div>
+
   <div id="goalsTab" class="tab-content">
     <h1>Goals</h1>
     <div class="goals-container" id="goalsContainer"></div>
   </div>
 </div>
+
 <div id="accessDeniedMessage" class="hidden">
-  <h1 style="text-align:center; margin-top:50vh;">this page isn't finished yet. check back again later (probably in 100 years)!</h1>
+  <h1 style="text-align:center; margin-top:50vh;">
+    this page isn't finished yet. check back again later (probably in 100 years)!
+  </h1>
 </div>
+
 <script>
   const ownerPassword = "TripAL!sat?cheL";
   const friendPassword = "goodvibes";
@@ -211,7 +189,9 @@
     const seconds = remainder % 60;
     let display = "";
     if (days > 0) display += days + "d ";
-    display += String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    display += String(hours).padStart(2, '0') + ':' +
+               String(minutes).padStart(2, '0') + ':' +
+               String(seconds).padStart(2, '0');
     return display;
   }
 
@@ -242,9 +222,7 @@
     startTime = Date.now();
     timerState = 'running';
     updateLocalStorage();
-    if (!timerInterval) {
-      timerInterval = setInterval(updateDisplay, 1000);
-    }
+    if (!timerInterval) timerInterval = setInterval(updateDisplay, 1000);
   }
 
   function pauseTimer() {
@@ -277,9 +255,7 @@
   document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
   if (timerState === 'running') {
-    if (!timerInterval) {
-      timerInterval = setInterval(updateDisplay, 1000);
-    }
+    if (!timerInterval) timerInterval = setInterval(updateDisplay, 1000);
   }
   updateDisplay();
 
@@ -292,9 +268,11 @@
       const div = document.createElement('div');
       div.className = 'goal-field';
       div.innerHTML = `
-        <div class="goal-title ${day === 30 ? 'boss-glow' : ''}">${day === 30 ? '30 Day Boss' : `Goal for going ${day} day${day > 1 ? 's' : ''} without being unkind`}</div>
+        <div class="goal-title ${day === 30 ? 'boss-glow' : ''}">
+          ${day === 30 ? '30 Day Boss' : `Goal for going ${day} day${day > 1 ? 's' : ''} without being unkind`}
+        </div>
         <div class="progress-bar">
-          <div class="progress-fill" style="width: ${percent}%"></div>
+          <div class="progress-fill" style="width: ${percent}%;"></div>
         </div>
         <div>${percent.toFixed(1)}% completed</div>
       `;
