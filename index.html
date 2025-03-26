@@ -9,13 +9,11 @@
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
-      /* A nice streak/gradient background */
       background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
       height: 100vh;
       color: #333;
       position: relative;
     }
-    /* Tabs container */
     .tabs {
       position: absolute;
       top: 10px;
@@ -34,11 +32,10 @@
       background: rgba(255, 255, 255, 1);
       font-weight: bold;
     }
-    /* Common styling for both tabs */
     .tab-content {
       display: none;
       text-align: center;
-      padding-top: 80px; /* leave space for the tabs */
+      padding-top: 80px;
     }
     .tab-content.active {
       display: block;
@@ -46,7 +43,7 @@
     h1 {
       font-size: 3rem;
       margin-bottom: 10px;
-      color: #2c3e50; /* Compliments the pastel background */
+      color: #2c3e50;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
     .timer {
@@ -70,189 +67,189 @@
     button:hover {
       background: rgba(0, 0, 0, 0.1);
     }
-    /* Goals styling */
     .goals-container {
-      max-width: 400px;
+      max-width: 500px;
       margin: 0 auto;
-      text-align: left;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.9);
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 15px;
     }
     .goal-field {
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
-    .goal-field label {
+    .goal-title {
       font-weight: bold;
-      display: block;
       margin-bottom: 5px;
     }
-    .goal-field input {
+    .progress-bar {
       width: 100%;
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      height: 20px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: #76c7c0;
+      width: 0%;
+      transition: width 0.3s ease;
     }
   </style>
 </head>
 <body>
-  <!-- Tabs -->
-  <div class="tabs">
-    <button id="tabTimer" class="active">Timer</button>
-    <button id="tabGoals">Goals</button>
+<script>
+  const ownerPassword = "TripAL!sat?cheL";
+  const friendPassword = "goodvibes";
+  const entered = prompt("Enter the password to access Nice Streak:");
+  let accessLevel = "none";
+  if (entered === ownerPassword) accessLevel = "owner";
+  else if (entered === friendPassword) accessLevel = "friend";
+  else {
+    document.body.innerHTML = "<h1 style='text-align:center; margin-top:50vh;'>Access Denied</h1>";
+    throw new Error("Access denied");
+  }
+</script>
+
+<div class="tabs">
+  <button id="tabTimer" class="active">Timer</button>
+  <button id="tabGoals">Goals</button>
+</div>
+
+<div id="timerTab" class="tab-content active">
+  <h1>Nice Streak</h1>
+  <div class="timer" id="timerDisplay">00:00:00</div>
+  <div class="buttons" id="controls">
+    <button id="startBtn">Start</button>
+    <button id="resetBtn">Reset</button>
+    <button id="pauseBtn">Pause</button>
   </div>
+</div>
 
-  <!-- Timer Tab Content -->
-  <div id="timerTab" class="tab-content active">
-    <h1>Nice Streak</h1>
-    <div class="timer" id="timerDisplay">00:00:00</div>
-    <div class="buttons">
-      <button id="startBtn">Start</button>
-      <button id="resetBtn">Reset</button>
-      <button id="pauseBtn">Pause</button>
-    </div>
-  </div>
+<div id="goalsTab" class="tab-content">
+  <h1>Goals</h1>
+  <div class="goals-container" id="goalsContainer"></div>
+</div>
 
-  <!-- Goals Tab Content -->
-  <div id="goalsTab" class="tab-content">
-    <h1>Goals</h1>
-    <div class="goals-container">
-      <div class="goal-field">
-        <label for="goal1">Goal for 1 Day:</label>
-        <input type="text" id="goal1" placeholder="Enter your goal for 1 day" />
-      </div>
-      <div class="goal-field">
-        <label for="goal2">Goal for 2 Days:</label>
-        <input type="text" id="goal2" placeholder="Enter your goal for 2 days" />
-      </div>
-      <div class="goal-field">
-        <label for="goal3">Goal for 3 Days:</label>
-        <input type="text" id="goal3" placeholder="Enter your goal for 3 days" />
-      </div>
-    </div>
-  </div>
+<script>
+  const tabTimer = document.getElementById('tabTimer');
+  const tabGoals = document.getElementById('tabGoals');
+  const timerTabContent = document.getElementById('timerTab');
+  const goalsTabContent = document.getElementById('goalsTab');
+  tabTimer.addEventListener('click', () => {
+    timerTabContent.classList.add('active');
+    goalsTabContent.classList.remove('active');
+    tabTimer.classList.add('active');
+    tabGoals.classList.remove('active');
+  });
+  tabGoals.addEventListener('click', () => {
+    goalsTabContent.classList.add('active');
+    timerTabContent.classList.remove('active');
+    tabGoals.classList.add('active');
+    tabTimer.classList.remove('active');
+  });
 
-  <script>
-    // Tab switching
-    const tabTimer = document.getElementById('tabTimer');
-    const tabGoals = document.getElementById('tabGoals');
-    const timerTabContent = document.getElementById('timerTab');
-    const goalsTabContent = document.getElementById('goalsTab');
+  const TIMER_STATE_KEY = 'timerState';
+  const START_TIME_KEY = 'startTime';
+  const ACCUMULATED_KEY = 'accumulated';
+  let timerState = localStorage.getItem(TIMER_STATE_KEY) || 'reset';
+  let startTime = parseInt(localStorage.getItem(START_TIME_KEY)) || 0;
+  let accumulated = parseInt(localStorage.getItem(ACCUMULATED_KEY)) || 0;
+  let timerInterval = null;
 
-    tabTimer.addEventListener('click', () => {
-      timerTabContent.classList.add('active');
-      goalsTabContent.classList.remove('active');
-      tabTimer.classList.add('active');
-      tabGoals.classList.remove('active');
-    });
-    tabGoals.addEventListener('click', () => {
-      goalsTabContent.classList.add('active');
-      timerTabContent.classList.remove('active');
-      tabGoals.classList.add('active');
-      tabTimer.classList.remove('active');
-    });
+  function updateLocalStorage() {
+    localStorage.setItem(TIMER_STATE_KEY, timerState);
+    localStorage.setItem(START_TIME_KEY, startTime.toString());
+    localStorage.setItem(ACCUMULATED_KEY, accumulated.toString());
+  }
 
-    // Timer logic with persistent state
-    const TIMER_STATE_KEY = 'timerState';
-    const START_TIME_KEY = 'startTime';
-    const ACCUMULATED_KEY = 'accumulated';
+  function formatTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const remainder = totalSeconds % 86400;
+    const hours = Math.floor(remainder / 3600);
+    const minutes = Math.floor((remainder % 3600) / 60);
+    const seconds = remainder % 60;
+    let display = "";
+    if (days > 0) display += days + "d ";
+    display += String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    return display;
+  }
 
-    // Possible states: 'running', 'paused', 'reset'
-    let timerState = localStorage.getItem(TIMER_STATE_KEY) || 'reset';
-    let startTime = parseInt(localStorage.getItem(START_TIME_KEY)) || 0;
-    let accumulated = parseInt(localStorage.getItem(ACCUMULATED_KEY)) || 0;
-    let timerInterval = null;
-
-    function updateLocalStorage() {
-      localStorage.setItem(TIMER_STATE_KEY, timerState);
-      localStorage.setItem(START_TIME_KEY, startTime.toString());
-      localStorage.setItem(ACCUMULATED_KEY, accumulated.toString());
-    }
-
-    // Updated function to include days
-    function formatTime(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const days = Math.floor(totalSeconds / 86400);
-      const remainder = totalSeconds % 86400;
-      const hours = Math.floor(remainder / 3600);
-      const minutes = Math.floor((remainder % 3600) / 60);
-      const seconds = remainder % 60;
-      let display = "";
-      if (days > 0) {
-        display += days + "d ";
-      }
-      display += String(hours).padStart(2, '0') + ':'
-              + String(minutes).padStart(2, '0') + ':'
-              + String(seconds).padStart(2, '0');
-      return display;
-    }
-
-    function updateDisplay() {
-      const now = Date.now();
-      let elapsed = accumulated;
-      if (timerState === 'running') {
-        elapsed += now - startTime;
-      }
-      document.getElementById('timerDisplay').textContent = formatTime(elapsed);
-    }
-
-    function startTimer() {
-      if (timerState === 'running') return;
-      startTime = Date.now();
-      timerState = 'running';
-      updateLocalStorage();
-      if (!timerInterval) {
-        timerInterval = setInterval(updateDisplay, 1000);
-      }
-    }
-
-    function pauseTimer() {
-      if (timerState !== 'running') return;
-      const now = Date.now();
-      accumulated += now - startTime;
-      timerState = 'paused';
-      updateLocalStorage();
-      clearInterval(timerInterval);
-      timerInterval = null;
-      updateDisplay();
-    }
-
-    function resetTimer() {
-      timerState = 'reset';
-      startTime = 0;
-      accumulated = 0;
-      updateLocalStorage();
-      clearInterval(timerInterval);
-      timerInterval = null;
-      updateDisplay();
-    }
-
-    document.getElementById('startBtn').addEventListener('click', startTimer);
-    document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
-    document.getElementById('resetBtn').addEventListener('click', resetTimer);
-
+  function updateDisplay() {
+    const now = Date.now();
+    let elapsed = accumulated;
     if (timerState === 'running') {
-      if (!timerInterval) {
-        timerInterval = setInterval(updateDisplay, 1000);
-      }
+      elapsed += now - startTime;
     }
-    updateDisplay();
+    document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+    updateGoals(elapsed);
+  }
 
-    // Goals logic: save and load from localStorage
-    const goalIds = ['goal1', 'goal2', 'goal3'];
-    goalIds.forEach(id => {
-      const input = document.getElementById(id);
-      // Load saved value if any
-      const saved = localStorage.getItem(id);
-      if (saved !== null) {
-        input.value = saved;
-      }
-      // Save on input change
-      input.addEventListener('input', () => {
-        localStorage.setItem(id, input.value);
-      });
+  function startTimer() {
+    if (timerState === 'running') return;
+    startTime = Date.now();
+    timerState = 'running';
+    updateLocalStorage();
+    if (!timerInterval) {
+      timerInterval = setInterval(updateDisplay, 1000);
+    }
+  }
+
+  function pauseTimer() {
+    if (timerState !== 'running') return;
+    const now = Date.now();
+    accumulated += now - startTime;
+    timerState = 'paused';
+    updateLocalStorage();
+    clearInterval(timerInterval);
+    timerInterval = null;
+    updateDisplay();
+  }
+
+  function resetTimer() {
+    timerState = 'reset';
+    startTime = 0;
+    accumulated = 0;
+    updateLocalStorage();
+    clearInterval(timerInterval);
+    timerInterval = null;
+    updateDisplay();
+  }
+
+  if (accessLevel !== 'owner') {
+    document.getElementById('controls').style.display = 'none';
+  }
+
+  document.getElementById('startBtn').addEventListener('click', startTimer);
+  document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+  document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+  if (timerState === 'running') {
+    if (!timerInterval) {
+      timerInterval = setInterval(updateDisplay, 1000);
+    }
+  }
+  updateDisplay();
+
+  function updateGoals(elapsed) {
+    const goalContainer = document.getElementById('goalsContainer');
+    const days = [1, 2, 3, 4, 5, 6, 7, 30];
+    goalContainer.innerHTML = '';
+    days.forEach(day => {
+      const percent = Math.min(100, Math.floor((elapsed / (day * 86400000)) * 100));
+      const div = document.createElement('div');
+      div.className = 'goal-field';
+      div.innerHTML = `
+        <div class="goal-title">${day === 30 ? '30 Day Boss' : `Goal for going ${day} day${day > 1 ? 's' : ''} without being unkind`}</div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${percent}%"></div>
+        </div>
+        <div>${percent}% completed</div>
+      `;
+      goalContainer.appendChild(div);
     });
-  </script>
+  }
+</script>
 </body>
 </html>
